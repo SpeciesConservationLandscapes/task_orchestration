@@ -1,0 +1,36 @@
+[
+    [
+        {
+            "image": "python:slim-buster",
+            "cmd": "python",
+            "args": {
+                "-c": "'import time;time.sleep(3);print(\"first\")'"
+            }
+        }
+    ],
+    [
+        {
+            "image": "python:slim-buster",
+            "cmd": "python",
+            "args": {
+                "-c": "'import time;time.sleep(3);print(\"two\")'"
+            }
+        },
+        {
+            "image": "python:slim-buster",
+            "cmd": "python",
+            "args": {
+                "-c": "'import time;time.sleep(1);print(\"three\")'"
+            }
+        }
+    ],
+    [
+        {
+            "image": "python:slim-buster",
+            "cmd": "python",
+            "args": {
+                "-c": "'import time;time.sleep(3);print(\"four\")'"
+            }
+        }
+    ]
+]
