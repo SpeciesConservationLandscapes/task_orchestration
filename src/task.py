@@ -4,6 +4,7 @@ import logging
 import os
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from posix import environ
 from typing import Any, Dict, List, Union
 
 import docker  # type: ignore
@@ -77,10 +78,12 @@ class OrchestrationTask(Task):
         client = docker.from_env()
         cmd = pipeline_task["cmd"]
         args = " ".join(f"{k} {v}" for k, v in pipeline_task["args"].items())
+
         return client.containers.run(
             image=pipeline_task["image"],
             command=f"{cmd} {args}",
-            remove=True
+            remove=True,
+            environment=os.environ
         )
 
     def run_task_group(self, task_group: List[dict]):
