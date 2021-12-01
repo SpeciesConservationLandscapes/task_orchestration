@@ -8,6 +8,7 @@ from posix import environ
 from typing import Any, Dict, List, Union
 
 import docker  # type: ignore
+from docker.types import LogConfig
 from task_base import Task  # type: ignore
 
 
@@ -81,10 +82,14 @@ class OrchestrationTask(Task):
 
         env_vars = [f"{k}={v}" for k, v in os.environ.items()]
 
+        docker_log = LogConfig(type=LogConfig.types.SYSLOG)
+
         return client.containers.run(
             image=pipeline_task["image"],
             command=f"{cmd} {args}",
             remove=True,
+            stdout=False,
+            log_config=docker_log,
             environment=env_vars
         )
 
@@ -98,7 +103,8 @@ class OrchestrationTask(Task):
         has_errors = False
         for future in futures:
             try:
-                logging.info(future.result())
+                # logging.info(future.result())
+                future.result()
             except Exception as err:
                 logging.error(err)
                 has_errors = True
@@ -109,6 +115,7 @@ class OrchestrationTask(Task):
         for task_group in self.pipeline:
             if self.run_task_group(task_group) is False:
                 raise PipelineError("Task error")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
