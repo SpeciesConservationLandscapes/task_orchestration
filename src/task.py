@@ -79,11 +79,13 @@ class OrchestrationTask(Task):
         cmd = pipeline_task["cmd"]
         args = " ".join(f"{k} {v}" for k, v in pipeline_task["args"].items())
 
+        env_vars = [f"{k}={v}" for k, v in os.environ.items()]
+
         return client.containers.run(
             image=pipeline_task["image"],
             command=f"{cmd} {args}",
             remove=True,
-            environment=os.environ
+            environment=env_vars
         )
 
     def run_task_group(self, task_group: List[dict]):
