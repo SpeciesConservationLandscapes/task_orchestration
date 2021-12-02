@@ -4,13 +4,10 @@ import logging
 import os
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from posix import environ
 from typing import Any, Dict, List, Union
 
 import docker  # type: ignore
-from docker.types import LogConfig
 from task_base import Task  # type: ignore
-
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 
@@ -58,7 +55,7 @@ class OrchestrationTask(Task):
         super().__init__(*args, **kwargs)
 
         self.pipeline = self._get_pipeline(kwargs)
-        self.exit_on_error = kwargs.get("exit_on_error") or False
+        self.raiseonfail = kwargs.get("raiseonfail") or False
 
     def _get_pipeline(self, kwargs: Dict[str, Any]):
         if kwargs.get("pipeline") is not None:
@@ -82,16 +79,20 @@ class OrchestrationTask(Task):
 
         env_vars = [f"{k}={v}" for k, v in os.environ.items()]
 
-        docker_log = LogConfig(type=LogConfig.types.SYSLOG)
-
-        return client.containers.run(
+        log_stream = client.containers.run(
             image=pipeline_task["image"],
             command=f"{cmd} {args}",
             remove=True,
-            stdout=False,
-            log_config=docker_log,
-            environment=env_vars
+            stdout=True,
+            stream=True,
+            environment=env_vars,
         )
+
+        for log in log_stream:
+            logging.info(log)
+        
+        return True
+
 
     def run_task_group(self, task_group: List[dict]):
         futures = []
@@ -103,13 +104,12 @@ class OrchestrationTask(Task):
         has_errors = False
         for future in futures:
             try:
-                # logging.info(future.result())
                 future.result()
             except Exception as err:
                 logging.error(err)
                 has_errors = True
 
-        return not has_errors or not self.exit_on_error
+        return not has_errors or not self.raiseonfail
 
     def calc(self):
         for task_group in self.pipeline:
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--pipeline")
     parser.add_argument("-f", "--pipeline_file")
     parser.add_argument(
-        "--exit_on_error",
+        "--raiseonfail",
         action="store_true",
         help="Stop running pipeline if any task has an exception.",
     )
