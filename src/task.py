@@ -2,6 +2,7 @@ import argparse
 import json
 import logging
 import os
+import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Dict, List, Union
@@ -102,7 +103,7 @@ class OrchestrationTask(Task):
                 futures.append(future)
 
         has_errors = False
-        for future in futures:
+        for future in concurrent.futures.as_completed(futures):
             try:
                 future.result()
             except Exception as err:

@@ -4,7 +4,7 @@
             "image": "python:slim-buster",
             "cmd": "python",
             "args": {
-                "-c": "'import time;time.sleep(3);print(\"first\")'"
+                "-c": "'import time;time.sleep(3);print(\"half\");time.sleep(3);print(\"one\")'"
             }
         }
     ],

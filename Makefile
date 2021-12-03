@@ -1,10 +1,10 @@
 run:
-	python src/task.py --pipeline_file="tests/pipeline.json" --exit_on_error
-
-run_error_skip:
-	python src/task.py --pipeline_file="tests/pipeline_w_error.json" --exit_on_error
+	python src/task.py --pipeline_file="tests/pipeline.json" --raiseonfail
 
 run_error:
+	python src/task.py --pipeline_file="tests/pipeline_w_error.json" --raiseonfail
+
+run_error_skip:
 	python src/task.py --pipeline_file="tests/pipeline_w_error.json"
 
 cleanup:
