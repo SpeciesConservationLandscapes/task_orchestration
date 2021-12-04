@@ -77,9 +77,7 @@ class OrchestrationTask(Task):
         client = docker.from_env()
         cmd = pipeline_task["cmd"]
         args = " ".join(f"{k} {v}" for k, v in pipeline_task["args"].items())
-
         env_vars = [f"{k}={v}" for k, v in os.environ.items()]
-        print(env_vars)
 
         log_stream = client.containers.run(
             image=pipeline_task["image"],
