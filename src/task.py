@@ -79,6 +79,7 @@ class OrchestrationTask(Task):
         args = " ".join(f"{k} {v}" for k, v in pipeline_task["args"].items())
 
         env_vars = [f"{k}={v}" for k, v in os.environ.items()]
+        print(env_vars)
 
         log_stream = client.containers.run(
             image=pipeline_task["image"],
@@ -91,9 +92,8 @@ class OrchestrationTask(Task):
 
         for log in log_stream:
             logging.info(log)
-        
-        return True
 
+        return True
 
     def run_task_group(self, task_group: List[dict]):
         futures = []
