@@ -1,8 +1,7 @@
 # task_orchestration
 
-Manage running task pipeline
-
-
+Manage running task pipeline. For more information see 
+[gcp_pipeline_devops](https://github.com/SpeciesConservationLandscapes/gcp-pipeline-devops).
 
 ## Usage
 
@@ -28,3 +27,11 @@ optional arguments:
     ]
 ]
 ```
+
+### License
+Copyright (C) 2022 Wildlife Conservation Society
+The files in this repository  are part of the task framework for calculating 
+Human Impact Index and Species Conservation Landscapes (https://github.com/SpeciesConservationLandscapes) 
+and are released under the GPL license:
+https://www.gnu.org/licenses/#GPL
+See [LICENSE](./LICENSE) for details.
