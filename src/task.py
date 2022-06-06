@@ -1,4 +1,5 @@
 import argparse
+import base64
 import json
 import logging
 import os
@@ -12,6 +13,7 @@ from task_base import Task  # type: ignore
 
 try:
     import googleapiclient.discovery
+    from googleapiclient.errors import HttpError
 except Exception as err:
     print(err)
 
@@ -32,9 +34,15 @@ def _get_google_secret(secret_key):
 
     secrets_manager = googleapiclient.discovery.build("secretmanager", "v1")
     secret_versions = secrets_manager.projects().secrets().versions()
-    resp = secret_versions.access(name=f"projects/{project_id}/secrets/{secret_key}/versions/latest").execute()
+    try:
+        resp = secret_versions.access(name=f"projects/{project_id}/secrets/{secret_key}/versions/latest").execute()
+    except HttpError as err:
+        err_json = json.loads(err.content.decode("utf-8"))
+        raise ValueError(f"[{err_json['code']}] {err['message']}") from err
+
     payload = resp.get("payload") or {}
-    return payload["data"]
+    val = payload.get("data")
+    return base64.b64decode(val).decode("utf-8")
 
 
 def _get_local_secret(secret_key):
@@ -185,19 +193,23 @@ class OrchestrationTask(Task):
                 futures.append(future)
 
         has_errors = False
+        exceptions = []
         for future in concurrent.futures.as_completed(futures):
             try:
                 future.result()
             except Exception as err:
                 logging.error(err)
+                exceptions.append(err)
                 has_errors = True
 
-        return not has_errors or not self.raiseonfail
+        return not has_errors or not self.raiseonfail, exceptions
 
     def calc(self):
         for task_group in self.pipeline:
-            if self.run_task_group(task_group) is False:
-                raise PipelineError("Task error")
+            result, exceptions = self.run_task_group(task_group)
+            if result is False:
+                msg = "\n".join(str(e) for e in exceptions)
+                raise PipelineError(f"Task error:\n {msg}")
 
 
 if __name__ == "__main__":
