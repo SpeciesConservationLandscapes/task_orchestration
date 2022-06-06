@@ -4,7 +4,10 @@
             "image": "python:slim-buster",
             "cmd": "python",
             "args": {
-                "-c": "'import time;time.sleep(3);print(\"half\");time.sleep(3);print(\"one\")'"
+                "-c": "'import os, time;time.sleep(3);print(\"half\");time.sleep(3);print(\"one\");print(os.environ[\"MY_PROJECT\"])'"
+            },
+            "env_vars": {
+                "PROJECT_ID": "MY_PROJECT"
             }
         }
     ],
@@ -30,6 +33,18 @@
             "cmd": "python",
             "args": {
                 "-c": "'import time;time.sleep(3);print(\"four\")'"
+            }
+        }
+    ],
+    [
+        {
+            "image": "python:slim-buster",
+            "cmd": "python",
+            "args": {
+                "-c": "'import time, os;time.sleep(4);print(\"four\\n\");print(*os.listdir(\"/my_code\"), sep=\"\\n\")'"
+            },
+            "volumes": {
+                "$PWD/src": "/my_code"
             }
         }
     ]

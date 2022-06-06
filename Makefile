@@ -1,5 +1,5 @@
 run:
-	python src/task.py --pipeline_file="tests/pipeline.json" --raiseonfail
+	python src/task.py --pipeline_file="tests/pipeline.json" -e local --raiseonfail
 
 run_error:
 	python src/task.py --pipeline_file="tests/pipeline_w_error.json" --raiseonfail
